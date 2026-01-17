@@ -1,0 +1,14 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Proposal output (project-specific, don't track)
+# .proposal/
+
+# Local settings
+.claude/settings.local.json
