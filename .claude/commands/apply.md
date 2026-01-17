@@ -285,3 +285,23 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
 3. **自动修复**：失败时自动分析并尝试修复
 4. **进度追踪**：实时更新 tasks.md 中的任务状态
 5. **可恢复**：失败后可以重新运行继续执行
+6. **用户通知**：需要用户介入时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知提醒：
+
+```bash
+# macOS
+osascript -e 'display notification "需要您的确认" with title "AI Workflow" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow" "需要您的确认"
+```
+
+**需要通知的时机**：
+- `--step` 模式：每个阶段完成后等待确认
+- 多次修复失败：需要人工介入
+- 发现 [待确认] 项：需要用户决策后才能继续
