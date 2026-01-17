@@ -422,3 +422,24 @@ const { loading, create } = useXxx();
 4. **不过度设计**：只实现文档中要求的功能
 5. **不写测试**：测试由 test agent 负责
 6. **编译验证**：每个文件创建后验证编译/构建
+7. **用户通知**：需要用户确认时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知：
+
+```bash
+# macOS
+osascript -e 'display notification "需要您的确认" with title "AI Workflow - Coding" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow - Coding" "需要您的确认"
+```
+
+**需要通知的时机**：
+- 空项目架构选择：需要确认推荐架构方案
+- 编译多次失败：需要人工分析错误
+- 设计文档有歧义：需要用户澄清实现细节
+- 与现有代码风格冲突：需要用户决定如何处理

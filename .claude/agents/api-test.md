@@ -603,3 +603,24 @@ test.describe('Xxx Feature', () => {
 5. **场景覆盖**：参考 API 文档中的所有错误码
 6. **失败时修复**：测试失败时自动分析并修复
 7. **独立性**：每个测试方法独立运行
+8. **用户通知**：需要用户介入时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知：
+
+```bash
+# macOS
+osascript -e 'display notification "API 测试需要您的介入" with title "AI Workflow - APITest" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow - APITest" "API 测试需要您的介入"
+```
+
+**需要通知的时机**：
+- 测试多次失败（3 次后）：需要人工分析
+- API 响应与文档不符：需要确认是 Bug 还是文档过期
+- 测试环境问题：需要用户检查环境配置
+- 认证/权限问题：需要用户提供测试凭证

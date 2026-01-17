@@ -218,3 +218,23 @@ void testRegister_Success() {
 2. **独立性**：每个测试用例应该独立，不依赖其他用例
 3. **可读性**：测试方法名要清晰表达测试意图
 4. **可执行**：提供的代码示例要能直接使用
+5. **用户通知**：需要用户确认时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知：
+
+```bash
+# macOS
+osascript -e 'display notification "需要确认测试用例" with title "AI Workflow - TestCase" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow - TestCase" "需要确认测试用例"
+```
+
+**需要通知的时机**：
+- 测试覆盖范围不确定：需要用户指定优先级
+- 边界值不明确：需要用户提供业务规则
+- 异常场景有遗漏风险：需要用户确认完整性

@@ -215,3 +215,24 @@ curl -X POST 'http://localhost:8080/api/users/register' \
 2. **完整性**：覆盖所有可能的错误场景
 3. **可测试性**：提供的示例要能直接用于测试
 4. **前后端友好**：字段命名清晰，类型明确
+5. **用户通知**：需要用户确认时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知：
+
+```bash
+# macOS
+osascript -e 'display notification "需要确认 API 设计" with title "AI Workflow - API" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow - API" "需要确认 API 设计"
+```
+
+**需要通知的时机**：
+- API 路径设计有多种选择：需要用户决定
+- 与现有 API 风格冲突：需要用户确认
+- 响应格式不明确：需要用户指定
+- 错误码定义有歧义：需要用户澄清

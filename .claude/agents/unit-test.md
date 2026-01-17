@@ -483,3 +483,24 @@ func TestXxxService_Create_NullParam(t *testing.T) {
 4. **断言完整**：不仅验证返回值，还验证副作用
 5. **边界覆盖**：特别注意边界值测试
 6. **失败时修复**：测试失败时自动分析并修复
+7. **用户通知**：需要用户介入时，发送系统通知
+
+---
+
+## 用户通知
+
+当需要用户介入时，发送系统通知：
+
+```bash
+# macOS
+osascript -e 'display notification "单元测试需要您的介入" with title "AI Workflow - UnitTest" sound name "Ping"'
+
+# Linux
+notify-send "AI Workflow - UnitTest" "单元测试需要您的介入"
+```
+
+**需要通知的时机**：
+- 测试多次失败（3 次后）：需要人工分析
+- Mock 配置不确定：需要确认依赖行为
+- 测试用例理解有歧义：需要用户澄清预期行为
+- 发现潜在的业务逻辑问题：需要用户确认
