@@ -1,3 +1,8 @@
+---
+name: apply
+description: 执行实现。基于提案文档执行编码和测试。当用户需要实现功能、写代码、写测试时使用。触发词：实现、编码、开发、apply。
+---
+
 # /apply - 执行实现
 
 ## 描述
@@ -5,40 +10,6 @@
 基于已生成的提案文档，执行编码和测试。
 
 **模式**：Auto 模式（默认全自动，支持阶段确认）
-
-**支持技术栈**：根据 context.json 自动选择构建和测试命令
-
----
-
-## 前置信息收集
-
-```bash
-echo "=== 提案列表 ==="
-ls -la .proposal/ 2>/dev/null || echo "无提案目录"
-
-echo ""
-echo "=== 目标提案内容 ==="
-if [ -n "$1" ]; then
-    ls -la .proposal/$1/ 2>/dev/null
-    echo ""
-    echo "=== 项目上下文 ==="
-    cat .proposal/$1/context.json 2>/dev/null || echo "无 context.json"
-else
-    # 获取最新的提案
-    LATEST=$(ls -t .proposal/ 2>/dev/null | head -1)
-    if [ -n "$LATEST" ]; then
-        echo "最新提案: $LATEST"
-        ls -la .proposal/$LATEST/
-        echo ""
-        echo "=== 项目上下文 ==="
-        cat .proposal/$LATEST/context.json 2>/dev/null || echo "无 context.json"
-    fi
-fi
-
-echo ""
-echo "=== 当前 Git 状态 ==="
-git status --short 2>/dev/null || echo "非 Git 仓库"
-```
 
 ---
 
@@ -61,52 +32,31 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
 
 ## 执行流程
 
-### Step 0: 确认提案和项目上下文
+### Step 0: 确认提案
 
-1. 确定目标提案目录
-2. **读取 context.json 获取项目技术栈**：
-   - projectType: frontend/backend/fullstack
-   - techStack.buildTool: npm/maven/gradle/pip/go
-   - techStack.testFramework: Jest/Vitest/JUnit/pytest/go test
-3. 检查文档完整性：
-   - context.json ✓
+1. 确定目标提案目录（`.proposal/{feature-name}/`）
+2. 检查文档完整性：
    - 1-requirements.md ✓
    - 2-design.md ✓
    - 3-api-spec.md ✓
    - 4-test-cases.md ✓
    - 5-tasks.md ✓
-4. 检查是否有 [待确认] 项未处理
-5. 显示任务摘要，确认开始
+3. 检查是否有 `[待确认]` 项未处理
+4. 显示任务摘要，确认开始
 
 ### Step 1: 编码阶段
 
-**调用 coding Agent**
+**读取同目录下的 `CODING.md` 获取编码规范，按规范完成编码。**
 
-**输入**（最小化）：
-- `.proposal/{feature}/context.json`
+**输入文档**：
 - `.proposal/{feature}/1-requirements.md`
 - `.proposal/{feature}/2-design.md`
 - `.proposal/{feature}/3-api-spec.md`
 
-**执行顺序**：
-1. Entity 层
-2. DTO/VO 层
-3. Mapper 层
-4. Service 层
-5. Controller 层
-
-**每个文件创建后**：
-- 验证编译/构建（根据 context.json 选择命令）
-- 更新 `5-tasks.md` 进度
-
-**构建命令选择**：
-| buildTool | 命令 |
-|-----------|------|
-| maven | `mvn compile` |
-| gradle | `gradle build` |
-| npm | `npm run build` 或 `npm run type-check` |
-| pip | `python -m py_compile xxx.py` |
-| go | `go build ./...` |
+**执行**：
+1. 根据设计文档逐层实现代码
+2. 每个文件创建后验证编译/构建
+3. 更新 `5-tasks.md` 进度
 
 **阶段完成输出**：
 ```
@@ -120,27 +70,17 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
 
 ### Step 2: 单元测试阶段
 
-**调用 unit-test Agent**
+**读取同目录下的 `UNIT-TEST.md` 获取测试规范，按规范编写单元测试。**
 
-**输入**（最小化）：
-- `.proposal/{feature}/context.json`
+**输入文档**：
 - `.proposal/{feature}/1-requirements.md`
 - `.proposal/{feature}/4-test-cases.md`（UT-* 部分）
 - 已实现的业务层代码
 
 **执行**：
 1. 创建测试文件
-2. 运行测试（根据 context.json 选择命令）
+2. 运行测试
 3. 如果失败，自动分析并修复（最多 3 次）
-
-**单元测试命令选择**：
-| testFramework | 命令 |
-|---------------|------|
-| JUnit | `mvn test -Dtest=*ServiceTest` |
-| pytest | `pytest tests/ -v` |
-| Jest | `npm test -- --testPathPattern=Service` |
-| Vitest | `npx vitest run` |
-| go test | `go test ./... -v` |
 
 **阶段完成输出**：
 ```
@@ -156,26 +96,17 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
 
 ### Step 3: API/集成测试阶段
 
-**调用 api-test Agent**
+**读取同目录下的 `API-TEST.md` 获取测试规范，按规范编写 API 测试。**
 
-**输入**（最小化）：
-- `.proposal/{feature}/context.json`
+**输入文档**：
 - `.proposal/{feature}/3-api-spec.md`
 - `.proposal/{feature}/4-test-cases.md`（AT-* 部分）
 - 已实现的接口层代码
 
 **执行**：
 1. 创建测试文件
-2. 运行测试（根据 context.json 选择命令）
+2. 运行测试
 3. 如果失败，自动分析并修复（最多 3 次）
-
-**API 测试命令选择**：
-| 项目类型 | 命令 |
-|----------|------|
-| backend/java | `mvn test -Dtest=*ControllerTest` |
-| backend/python | `pytest tests/test_*_router.py -v` |
-| backend/go | `go test ./... -v` |
-| frontend/* | `npm run test:e2e` 或 `npx cypress run` |
 
 **阶段完成输出**：
 ```
@@ -215,12 +146,8 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
     └── 通过率: 100%
 
 📁 新增文件：
-├── src/main/java/.../entity/XxxEntity.java
-├── src/main/java/.../dto/XxxDTO.java
-├── src/main/java/.../service/XxxService.java
-├── src/main/java/.../controller/XxxController.java
-├── src/test/java/.../XxxServiceTest.java
-└── src/test/java/.../XxxControllerTest.java
+├── [根据实际项目结构列出]
+└── ...
 
 👉 下一步：
    1. 代码审查
@@ -280,12 +207,11 @@ git status --short 2>/dev/null || echo "非 Git 仓库"
 
 ## 注意事项
 
-1. **文档完整性**：确保所有文档存在且无 [待确认] 项
-2. **最小化输入**：每个 Agent 只读取必要的文档
-3. **自动修复**：失败时自动分析并尝试修复
-4. **进度追踪**：实时更新 tasks.md 中的任务状态
-5. **可恢复**：失败后可以重新运行继续执行
-6. **用户通知**：需要用户介入时，发送系统通知
+1. **文档完整性**：确保所有文档存在且无 `[待确认]` 项
+2. **自动修复**：失败时自动分析并尝试修复
+3. **进度追踪**：实时更新 tasks.md 中的任务状态
+4. **可恢复**：失败后可以重新运行继续执行
+5. **用户通知**：需要用户介入时，发送系统通知
 
 ---
 
@@ -304,4 +230,4 @@ notify-send "AI Workflow" "需要您的确认"
 **需要通知的时机**：
 - `--step` 模式：每个阶段完成后等待确认
 - 多次修复失败：需要人工介入
-- 发现 [待确认] 项：需要用户决策后才能继续
+- 发现 `[待确认]` 项：需要用户决策后才能继续
