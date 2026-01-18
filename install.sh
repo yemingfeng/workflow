@@ -30,6 +30,65 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# 配置通知 hooks
+configure_hooks() {
+    local config_dir="$1"
+    local settings_file="$config_dir/settings.json"
+
+    # 通知 hooks 配置
+    local hooks_config='{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e '\''display notification \"需要您的确认\" with title \"AI Workflow\" sound name \"Ping\"'\''"
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e '\''display notification \"等待您的输入\" with title \"AI Workflow\" sound name \"Ping\"'\''"
+          }
+        ]
+      }
+    ]
+  }
+}'
+
+    # 如果文件不存在，直接创建
+    if [ ! -f "$settings_file" ]; then
+        echo "$hooks_config" > "$settings_file"
+        print_info "已创建 settings.json 并配置通知 hooks"
+        return
+    fi
+
+    # 文件存在，尝试合并
+    if command -v jq &> /dev/null; then
+        # 使用 jq 合并
+        local temp_file=$(mktemp)
+        jq -s '.[0] * .[1]' "$settings_file" <(echo "$hooks_config") > "$temp_file" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            mv "$temp_file" "$settings_file"
+            print_info "已合并通知 hooks 到 settings.json"
+        else
+            rm -f "$temp_file"
+            print_warning "合并失败，请手动添加 hooks 配置"
+        fi
+    else
+        # 没有 jq，提示用户
+        print_warning "settings.json 已存在，请手动添加以下 hooks 配置："
+        echo ""
+        echo "$hooks_config"
+        echo ""
+    fi
+}
+
 # 主函数
 main() {
     local target_dir="."
@@ -112,6 +171,9 @@ main() {
     # 创建 .proposal 目录
     mkdir -p "$target_dir/.proposal"
 
+    # 配置通知 hooks
+    configure_hooks "$target_dir/$config_dir"
+
     # 验证安装
     if [ -d "$target_dir/$config_dir/skills/proposal" ] && \
        [ -d "$target_dir/$config_dir/skills/apply" ] && \
@@ -121,6 +183,7 @@ main() {
         echo ""
         echo "已安装的文件："
         echo "├── $config_dir/"
+        echo "│   ├── settings.json  (通知 hooks 配置)"
         echo "│   └── skills/"
         echo "│       ├── proposal/  (提案生成 + 5个模板)"
         echo "│       ├── apply/     (实现执行 + 3个规范)"
