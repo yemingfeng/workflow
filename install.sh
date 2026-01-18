@@ -56,12 +56,7 @@ main() {
 
     # 检查是否已存在 .claude 目录
     if [ -d "$target_dir/.claude" ]; then
-        print_warning ".claude 目录已存在"
-        read -p "是否覆盖？(y/N): " confirm
-        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-            print_info "安装已取消"
-            exit 0
-        fi
+        print_warning ".claude 目录已存在，将被覆盖"
         rm -rf "$target_dir/.claude"
     fi
 
