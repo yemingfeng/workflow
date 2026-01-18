@@ -33,8 +33,15 @@
 ### 安装
 
 ```bash
+# 默认安装（Claude Code）
 curl -fsSL https://raw.githubusercontent.com/yemingfeng/workflow/master/install.sh | bash
+
+# 指定 AI 工具
+curl -fsSL https://raw.githubusercontent.com/yemingfeng/workflow/master/install.sh | bash -s -- --ai cursor
+curl -fsSL https://raw.githubusercontent.com/yemingfeng/workflow/master/install.sh | bash -s -- --ai windsurf
 ```
+
+**支持的 AI 工具**：`claude`(默认)、`cursor`、`qoder`、`windsurf`、`trae`
 
 ### 使用方式
 
@@ -120,8 +127,10 @@ curl -fsSL https://raw.githubusercontent.com/yemingfeng/workflow/master/install.
 
 ### 文件结构
 
+> 配置目录根据 AI 工具不同：`.claude`、`.cursor`、`.qoder`、`.windsurf`、`.trae`
+
 ```
-.claude/
+.claude/  # 或 .cursor/ .windsurf/ 等
 └── skills/
     ├── proposal/                    # 提案生成 Skill
     │   ├── SKILL.md                # 入口：/proposal
