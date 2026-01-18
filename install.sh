@@ -3,6 +3,7 @@
 # AI Workflow 安装脚本
 # https://github.com/yemingfeng/workflow
 # 用法: curl -fsSL https://raw.githubusercontent.com/yemingfeng/workflow/master/install.sh | bash
+# 指定 AI: curl -fsSL ... | bash -s -- --ai cursor
 
 set -e
 
@@ -31,7 +32,36 @@ print_error() {
 
 # 主函数
 main() {
-    local target_dir="${1:-.}"
+    local target_dir="."
+    local ai_type="claude"
+
+    # 解析参数
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --ai)
+                ai_type="$2"
+                shift 2
+                ;;
+            *)
+                target_dir="$1"
+                shift
+                ;;
+        esac
+    done
+
+    # 验证 ai_type
+    case $ai_type in
+        claude|cursor|qoder|windsurf|trae)
+            ;;
+        *)
+            print_error "不支持的 AI 类型: $ai_type"
+            print_info "支持的类型: claude, cursor, qoder, windsurf, trae"
+            exit 1
+            ;;
+    esac
+
+    local config_dir=".$ai_type"
+
     target_dir=$(cd "$target_dir" 2>/dev/null && pwd || echo "$target_dir")
 
     # 检查目标目录是否存在
@@ -47,6 +77,8 @@ main() {
     echo ""
 
     print_info "目标目录: $target_dir"
+    print_info "AI 类型: $ai_type"
+    print_info "配置目录: $config_dir"
 
     # 检查 git
     if ! command -v git &> /dev/null; then
@@ -54,10 +86,10 @@ main() {
         exit 1
     fi
 
-    # 检查是否已存在 .claude 目录
-    if [ -d "$target_dir/.claude" ]; then
-        print_warning ".claude 目录已存在，将被覆盖"
-        rm -rf "$target_dir/.claude"
+    # 检查是否已存在配置目录
+    if [ -d "$target_dir/$config_dir" ]; then
+        print_warning "$config_dir 目录已存在，将被覆盖"
+        rm -rf "$target_dir/$config_dir"
     fi
 
     # 克隆仓库
@@ -65,9 +97,9 @@ main() {
     print_info "克隆 AI Workflow 仓库..."
     git clone --depth 1 --quiet "https://github.com/yemingfeng/workflow.git" "$temp_dir/workflow"
 
-    # 复制 .claude 目录
+    # 复制并重命名目录
     if [ -d "$temp_dir/workflow/.claude" ]; then
-        cp -r "$temp_dir/workflow/.claude" "$target_dir/"
+        cp -r "$temp_dir/workflow/.claude" "$target_dir/$config_dir"
     else
         print_error "仓库中找不到 .claude 目录"
         rm -rf "$temp_dir"
@@ -81,14 +113,14 @@ main() {
     mkdir -p "$target_dir/.proposal"
 
     # 验证安装
-    if [ -d "$target_dir/.claude/skills/proposal" ] && \
-       [ -d "$target_dir/.claude/skills/apply" ] && \
-       [ -d "$target_dir/.claude/skills/fix" ]; then
+    if [ -d "$target_dir/$config_dir/skills/proposal" ] && \
+       [ -d "$target_dir/$config_dir/skills/apply" ] && \
+       [ -d "$target_dir/$config_dir/skills/fix" ]; then
         echo ""
         print_success "安装完成！"
         echo ""
         echo "已安装的文件："
-        echo "├── .claude/"
+        echo "├── $config_dir/"
         echo "│   └── skills/"
         echo "│       ├── proposal/  (提案生成 + 5个模板)"
         echo "│       ├── apply/     (实现执行 + 3个规范)"
