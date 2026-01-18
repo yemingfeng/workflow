@@ -237,7 +237,7 @@ description: 执行实现。基于提案文档执行编码和测试。当用户�
 
 ## 用户通知
 
-当需要用户介入时，发送系统通知提醒：
+**通知规则**：只要需要用户确认或输入，就发送系统通知。
 
 ```bash
 # macOS
@@ -246,8 +246,3 @@ osascript -e 'display notification "需要您的确认" with title "AI Workflow"
 # Linux
 notify-send "AI Workflow" "需要您的确认"
 ```
-
-**需要通知的时机**：
-- `--step` 模式：每个阶段完成后等待确认
-- 多次修复失败：需要人工介入
-- 发现 `[待确认]` 项：需要用户决策后才能继续

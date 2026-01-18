@@ -222,17 +222,12 @@ assertEquals("EMAIL_EXISTS", ex.getMessage()); // 检查实际值
 
 ## 用户通知
 
-当需要用户介入时，发送系统通知：
+**通知规则**：只要需要用户确认或输入，就发送系统通知。
 
 ```bash
 # macOS
-osascript -e 'display notification "修复失败，需要人工介入" with title "AI Workflow - Fix" sound name "Ping"'
+osascript -e 'display notification "修复需要您的介入" with title "AI Workflow - Fix" sound name "Ping"'
 
 # Linux
-notify-send "AI Workflow - Fix" "修复失败，需要人工介入"
+notify-send "AI Workflow - Fix" "修复需要您的介入"
 ```
-
-**需要通知的时机**：
-- 多次修复失败（3 次后）：需要人工分析
-- 问题描述不足：需要更多信息
-- 涉及复杂逻辑：建议人工审核修复方案

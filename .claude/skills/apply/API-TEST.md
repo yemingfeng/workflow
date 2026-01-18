@@ -122,7 +122,7 @@
 
 ## 用户通知
 
-当需要用户介入时，发送系统通知：
+**通知规则**：只要需要用户确认或输入，就发送系统通知。
 
 ```bash
 # macOS
@@ -131,9 +131,3 @@ osascript -e 'display notification "API 测试需要您的介入" with title "AI
 # Linux
 notify-send "AI Workflow - APITest" "API 测试需要您的介入"
 ```
-
-**需要通知的时机**：
-- 测试多次失败（3 次后）：需要人工分析
-- API 响应与文档不符：需要确认是 Bug 还是文档过期
-- 测试环境问题：需要用户检查环境配置
-- 认证/权限问题：需要用户提供测试凭证
