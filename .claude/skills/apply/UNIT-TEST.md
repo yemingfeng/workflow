@@ -106,18 +106,3 @@
 3. **断言完整**：不仅验证返回值，还验证副作用
 4. **边界覆盖**：特别注意边界值测试
 5. **失败时修复**：测试失败时自动分析并修复
-6. **用户通知**：需要用户介入时，发送系统通知
-
----
-
-## 用户通知
-
-**通知规则**：只要需要用户确认或输入，就发送系统通知。
-
-```bash
-# macOS
-osascript -e 'display notification "单元测试需要您的介入" with title "AI Workflow - UnitTest" sound name "Ping"'
-
-# Linux
-notify-send "AI Workflow - UnitTest" "单元测试需要您的介入"
-```

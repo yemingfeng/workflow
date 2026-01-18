@@ -210,18 +210,3 @@ mkdir -p .proposal/{feature-name}
 2. **参考现有代码**：保持与项目风格一致
 3. **渐进式生成**：每个文档生成后可以与用户确认
 4. **质量优先**：宁可多问，不要假设
-5. **用户通知**：需要用户输入或确认时，发送系统通知
-
----
-
-## 用户通知
-
-**通知规则**：只要需要用户确认或输入，就发送系统通知。
-
-```bash
-# macOS
-osascript -e 'display notification "需要您的输入" with title "AI Workflow" sound name "Ping"'
-
-# Linux
-notify-send "AI Workflow" "需要您的输入"
-```

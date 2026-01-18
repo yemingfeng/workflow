@@ -91,18 +91,3 @@
 3. **不过度设计**：只实现文档中要求的功能
 4. **不写测试**：测试由测试阶段负责
 5. **编译验证**：每个文件创建后验证编译/构建
-6. **用户通知**：需要用户确认时，发送系统通知
-
----
-
-## 用户通知
-
-**通知规则**：只要需要用户确认或输入，就发送系统通知。
-
-```bash
-# macOS
-osascript -e 'display notification "需要您的确认" with title "AI Workflow - Coding" sound name "Ping"'
-
-# Linux
-notify-send "AI Workflow - Coding" "需要您的确认"
-```

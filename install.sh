@@ -30,62 +30,20 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# 配置通知 hooks
-configure_hooks() {
-    local config_dir="$1"
-    local settings_file="$config_dir/settings.json"
+# 智能合并 settings.json
+merge_settings() {
+    local settings_file="$1"
+    local old_settings="$2"
 
-    # 通知 hooks 配置
-    local hooks_config='{
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "permission_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e '\''display notification \"需要您的确认\" with title \"AI Workflow\" sound name \"Ping\"'\''"
-          }
-        ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e '\''display notification \"等待您的输入\" with title \"AI Workflow\" sound name \"Ping\"'\''"
-          }
-        ]
-      }
-    ]
-  }
-}'
-
-    # 如果文件不存在，直接创建
-    if [ ! -f "$settings_file" ]; then
-        echo "$hooks_config" > "$settings_file"
-        print_info "已创建 settings.json 并配置通知 hooks"
-        return
-    fi
-
-    # 文件存在，尝试合并
     if command -v jq &> /dev/null; then
-        # 使用 jq 合并
-        local temp_file=$(mktemp)
-        jq -s '.[0] * .[1]' "$settings_file" <(echo "$hooks_config") > "$temp_file" 2>/dev/null
-        if [ $? -eq 0 ]; then
-            mv "$temp_file" "$settings_file"
-            print_info "已合并通知 hooks 到 settings.json"
-        else
-            rm -f "$temp_file"
-            print_warning "合并失败，请手动添加 hooks 配置"
+        # 使用 jq 合并：新配置为基础，旧配置覆盖（保留用户自定义）
+        local merged=$(echo "$old_settings" | jq -s '.[1] * .[0]' "$settings_file" -)
+        if [ $? -eq 0 ] && [ -n "$merged" ]; then
+            echo "$merged" > "$settings_file"
+            print_info "已合并现有 settings.json 配置"
         fi
     else
-        # 没有 jq，提示用户
-        print_warning "settings.json 已存在，请手动添加以下 hooks 配置："
-        echo ""
-        echo "$hooks_config"
-        echo ""
+        print_warning "未安装 jq，无法合并配置。建议安装 jq: brew install jq"
     fi
 }
 
@@ -145,20 +103,22 @@ main() {
         exit 1
     fi
 
-    # 检查是否已存在配置目录
-    if [ -d "$target_dir/$config_dir" ]; then
-        print_warning "$config_dir 目录已存在，将被覆盖"
-        rm -rf "$target_dir/$config_dir"
-    fi
-
     # 克隆仓库
     local temp_dir=$(mktemp -d)
     print_info "克隆 AI Workflow 仓库..."
     git clone --depth 1 --quiet "https://github.com/yemingfeng/workflow.git" "$temp_dir/workflow"
 
+    # 备份现有 settings.json
+    local existing_settings=""
+    if [ -f "$target_dir/$config_dir/settings.json" ]; then
+        existing_settings=$(cat "$target_dir/$config_dir/settings.json")
+        print_info "已备份现有 settings.json"
+    fi
+
     # 复制并重命名目录
     if [ -d "$temp_dir/workflow/.claude" ]; then
-        cp -r "$temp_dir/workflow/.claude" "$target_dir/$config_dir"
+        mkdir -p "$target_dir/$config_dir"
+        cp -r "$temp_dir/workflow/.claude/." "$target_dir/$config_dir/"
     else
         print_error "仓库中找不到 .claude 目录"
         rm -rf "$temp_dir"
@@ -168,11 +128,13 @@ main() {
     # 清理
     rm -rf "$temp_dir"
 
+    # 如果有旧的 settings.json，进行智能合并
+    if [ -n "$existing_settings" ]; then
+        merge_settings "$target_dir/$config_dir/settings.json" "$existing_settings"
+    fi
+
     # 创建 .proposal 目录
     mkdir -p "$target_dir/.proposal"
-
-    # 配置通知 hooks
-    configure_hooks "$target_dir/$config_dir"
 
     # 验证安装
     if [ -d "$target_dir/$config_dir/skills/proposal" ] && \

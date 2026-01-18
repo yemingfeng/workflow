@@ -231,18 +231,3 @@ description: 执行实现。基于提案文档执行编码和测试。当用户�
 2. **自动修复**：失败时自动分析并尝试修复
 3. **进度追踪**：实时更新 tasks.md 中的任务状态
 4. **可恢复**：失败后可以重新运行继续执行
-5. **用户通知**：需要用户介入时，发送系统通知
-
----
-
-## 用户通知
-
-**通知规则**：只要需要用户确认或输入，就发送系统通知。
-
-```bash
-# macOS
-osascript -e 'display notification "需要您的确认" with title "AI Workflow" sound name "Ping"'
-
-# Linux
-notify-send "AI Workflow" "需要您的确认"
-```

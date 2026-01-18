@@ -216,18 +216,3 @@ assertEquals("EMAIL_EXISTS", ex.getMessage()); // 检查实际值
 3. **验证必须**：修复后必须运行相关测试
 4. **记录问题**：如果是常见错误，考虑记录到 CLAUDE.md
 5. **多次失败求助**：超过 3 次失败，建议人工介入
-6. **用户通知**：需要人工介入时，发送系统通知
-
----
-
-## 用户通知
-
-**通知规则**：只要需要用户确认或输入，就发送系统通知。
-
-```bash
-# macOS
-osascript -e 'display notification "修复需要您的介入" with title "AI Workflow - Fix" sound name "Ping"'
-
-# Linux
-notify-send "AI Workflow - Fix" "修复需要您的介入"
-```
